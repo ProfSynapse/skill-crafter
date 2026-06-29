@@ -9,9 +9,18 @@ Checks, in order:
      word thresholds. Over threshold is the signal to modularize.
   4. Every relative file reference in any markdown resolves (dependency mapping:
      no dangling links to references/protocols/agents/scripts).
+  5. Markdown completeness: no source file is empty, has an unclosed code fence,
+     or ends mid-sentence. A structure-only check reads a truncated file as valid
+     (a truncated router is even shorter, which the length check calls healthier),
+     so this catches silent truncation that has no compile step. ERROR.
+  6. Workflow placement: in executable files (SKILL.md, agents/, protocols/),
+     imperative keywords (MUST/ALWAYS/NEVER/REQUIRED) should appear inside the
+     numbered workflow, not only in side sections an agent reads top-to-bottom
+     never reaches. A keyword present only outside the steps is flagged. WARN.
 
-These are the universal checks. Domain-specific checks belong in the skill's own
-scripts/ (see references/validation-pattern.md). Stdlib only.
+Checks 1-5 are hard errors; check 6 is a heuristic warning. These are the
+universal checks. Domain-specific checks belong in the skill's own scripts/ (see
+references/validation-pattern.md). Stdlib only.
 
 Exit 0 when valid, 1 when an error is found, 2 on usage error. Warnings do not
 fail the run.
@@ -31,6 +40,9 @@ KEBAB = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 MD_LINK = re.compile(r"\]\(([^)]+)\)")
 BACKTICK_PATH = re.compile(r"`([A-Za-z0-9_./-]+\.(?:md|py|sh|json|ya?ml|txt))`")
 KNOWN_FOLDERS = {"agents", "scripts", "templates", "references", "protocols"}
+IMPERATIVE = re.compile(r"\b(MUST|ALWAYS|NEVER|REQUIRED)\b")
+NUMBERED = re.compile(r"^\s*\d+\.\s")
+WORKFLOW_HEADING = re.compile(r"^#+\s.*\b(workflow|steps|instructions)\b", re.IGNORECASE)
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -80,6 +92,68 @@ def resolves(skill_dir: Path, md: Path, ref: str) -> bool:
     return any(c.exists() for c in candidates)
 
 
+def looks_cut_off(line: str) -> bool:
+    """True when a markdown file's last content line reads like cut-off prose.
+
+    Structural lines (headings, list items, table rows, blockquotes, fences) and
+    lines ending in sentence punctuation or a closing token are fine. Only
+    multi-word prose ending on a comma or a bare lowercase word is flagged -- the
+    signature of a sentence chopped in half by truncation.
+    """
+    line = line.rstrip()
+    if not line or line[0] in "#-*>|" or line.lstrip().startswith(("```", "1.", "- ", "* ")):
+        return False
+    if line.endswith(("```", "|")):
+        return False
+    if line[-1] in ".?!:;)]}>\"'`*_":
+        return False
+    if " " not in line:
+        return False
+    return line[-1] == "," or (line[-1].isalpha() and line[-1].islower())
+
+
+def check_completeness(rel: str, text: str) -> list[str]:
+    """Catch silent truncation: empty file, unclosed code fence, mid-sentence end."""
+    errors: list[str] = []
+    if not text.strip():
+        errors.append(f"{rel}: file is empty")
+        return errors
+    if text.count("```") % 2 != 0:
+        errors.append(f"{rel}: unclosed code fence (``` count is odd)")
+    last = next((ln for ln in reversed(text.splitlines()) if ln.strip()), "")
+    if looks_cut_off(last):
+        errors.append(f"{rel}: ends mid-sentence -> '{last.rstrip()[-60:]}' (possible truncation)")
+    return errors
+
+
+def check_workflow_placement(rel: str, text: str) -> list[str]:
+    """Flag imperative keywords that live only outside the numbered workflow.
+
+    In an executable file an agent follows the numbered steps top to bottom; a
+    MUST/ALWAYS/NEVER stranded in a side section is read where it won't fire. If
+    every occurrence sits outside the steps, warn -- a mandatory rule belongs in
+    the workflow, at the point of decision.
+    """
+    in_workflow_section = False
+    keyword: str | None = None
+    in_steps = False
+    for ln in text.splitlines():
+        if ln.startswith("#"):
+            in_workflow_section = bool(WORKFLOW_HEADING.match(ln))
+        numbered = bool(NUMBERED.match(ln))
+        m = IMPERATIVE.search(ln)
+        if m:
+            keyword = keyword or m.group(1)
+            if numbered or in_workflow_section:
+                in_steps = True
+    if keyword and not in_steps:
+        return [
+            f"{rel}: imperative '{keyword}' appears only outside the numbered "
+            f"workflow/steps -- mandatory behavior may sit where the agent won't read it"
+        ]
+    return []
+
+
 def validate(skill_dir: Path, args) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -113,13 +187,22 @@ def validate(skill_dir: Path, args) -> tuple[list[str], list[str]]:
         )
 
     for md in sorted(skill_dir.rglob("*.md")):
+        rel = md.relative_to(skill_dir)
         # templates/ holds inert copy-targets whose paths resolve in the
-        # destination skill, not here, so do not resolve their links.
-        if "templates" in md.relative_to(skill_dir).parts:
+        # destination skill, not here, so do not resolve their links. They are a
+        # deliberate exception to completeness too: a template may end on a
+        # placeholder line.
+        if "templates" in rel.parts:
             continue
-        for ref in collect_refs(md.read_text(encoding="utf-8")):
+        text = md.read_text(encoding="utf-8")
+        for ref in collect_refs(text):
             if not resolves(skill_dir, md, ref):
-                errors.append(f"{md.relative_to(skill_dir)}: broken reference -> {ref}")
+                errors.append(f"{rel}: broken reference -> {ref}")
+        errors.extend(check_completeness(str(rel), text))
+        # Workflow-placement is a heuristic and only meaningful for files an agent
+        # executes top-to-bottom: the router and the prompt/protocol files.
+        if rel.name == "SKILL.md" or rel.parts[0] in ("agents", "protocols"):
+            warnings.extend(check_workflow_placement(str(rel), text))
 
     for child in skill_dir.iterdir():
         if child.is_dir() and child.name not in KNOWN_FOLDERS and not child.name.startswith("."):

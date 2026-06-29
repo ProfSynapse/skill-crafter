@@ -7,7 +7,7 @@ description: Build, improve, modularize, and validate Claude Code skills the rig
 
 Context: a meta-skill for building and improving other skills. It encodes a set
 of best practices and demonstrates every one of them in its own structure. You
-reason through the work; the scripts verify what is checkable. The seven
+reason through the work; the scripts verify what is checkable. The nine
 principles every skill should satisfy live in `references/best-practices.md`.
 
 ## Create a new skill
@@ -35,7 +35,9 @@ re-test.
 - `protocols/` the how: create-skill, improve-skill, modularize, validate.
 - `agents/` the workers: PACT (preparer, architect, creator, tester) plus improver.
 - `scripts/` CLI tools: `scripts/scaffold.py` to generate a skill,
-  `scripts/validate_skill.py` to check one. Run them, do not reimplement.
+  `scripts/validate_skill.py` to check its structure and completeness, and
+  `scripts/verify_package.py` to round-trip the packaged `.skill` against source.
+  Run them, do not reimplement.
 - `templates/` files to copy into a new skill: SKILL, agent, protocol, reference,
   script, plus the self-refine protocol and refinement-log that make a skill
   self-refining.

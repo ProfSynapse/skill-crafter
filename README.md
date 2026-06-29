@@ -4,7 +4,7 @@ A meta-skill for building and improving Claude Code skills the right way. It
 encodes a set of authoring best practices and demonstrates every one of them in
 its own structure, so it is also a worked example of a well-formed skill.
 
-Version 0.1.0.
+Version 0.1.1.
 
 ## What it does
 - **Create** a new skill from a rough idea, through a gated PACT cycle
@@ -21,10 +21,13 @@ gated on user feedback, so the build stays steerable.
 2. Modularize when a file grows past a router (SOLID/DRY, map dependencies).
 3. Decompose into the standard folders: agents, scripts, templates, references,
    protocols.
-4. Validate anything programmatically checkable with a script.
+4. Validate what is mechanical and stable with a script; for judgment, the model
+   emits a label against a rubric and the script checks the label.
 5. Scripts are CLI-first (Python, stdlib, argparse, exit codes).
 6. Prompts follow Context, Mission, Instructions, Format, Guidelines.
 7. Created skills are self-refining.
+8. Mandatory behavior lives in the numbered workflow, not a side section.
+9. Verify the packaged artifact, not just the source, and run it end to end.
 
 The canonical statement lives in [references/best-practices.md](references/best-practices.md).
 
@@ -37,7 +40,7 @@ skill-crafter/
 │                     prompt-structure, validation-pattern
 ├── agents/           skill-preparer, skill-architect, skill-creator,
 │                     skill-tester, skill-improver
-├── scripts/          scaffold.py, validate_skill.py
+├── scripts/          scaffold.py, validate_skill.py, verify_package.py
 └── templates/        SKILL, agent, protocol, reference, script,
                       self-refine, refinement-log
 ```
@@ -54,17 +57,22 @@ python scripts/scaffold.py my-skill --description "Do X when Y." --path ../skill
 
 # Validate any skill directory against the universal rules
 python scripts/validate_skill.py path/to/skill
+
+# Verify a packaged artifact against its source (run after packaging)
+python scripts/verify_package.py --source path/to/skill --package dist/skill.skill
 ```
 `validate_skill.py` checks frontmatter (kebab-case name, description), keeps the
-router under the length threshold, and confirms every local reference resolves.
-Per-skill domain checks are written by each skill; see
-[references/validation-pattern.md](references/validation-pattern.md).
+router under the length threshold, confirms every local reference resolves, and
+flags truncated files and imperatives stranded outside the workflow.
+`verify_package.py` round-trips the shipped `.skill` against source hashes so a
+truncated member cannot pass silently. Per-skill domain checks are written by each
+skill; see [references/validation-pattern.md](references/validation-pattern.md).
 
 ## Install
 Unpack the release artifact so the `skill-crafter/` directory sits in your skills
 location (for example `~/.claude/skills/skill-crafter/`):
 ```bash
-unzip skill-crafter-0.1.0.skill -d ~/.claude/skills/
+unzip skill-crafter-0.1.1.skill -d ~/.claude/skills/
 ```
 Then start a session and the skill is available.
 

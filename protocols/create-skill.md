@@ -42,8 +42,10 @@ testing.
 
 ### 4. Test
 Dispatch the `../agents/skill-tester.md` agent. It runs `../scripts/validate_skill.py`
-and the skill's own validators, walks the skill end to end, and returns PASS or
-FAIL with defects. Loop back to Create on FAIL until it passes.
+and the skill's own validators, packages the skill and round-trips the artifact with
+`../scripts/verify_package.py`, walks the skill end to end -- actually dispatching a
+subagent if the skill delegates to one -- and returns PASS or FAIL with defects.
+Loop back to Create on FAIL until it passes.
 **Gate:** share the results and get the user's sign-off that the skill does what
 they wanted before declaring it done.
 
@@ -67,5 +69,11 @@ is author-controlled and does not refine itself.
   the gate, not your sense that the output looks right.
 - Anti-pattern: writing files during Prepare or Architect. Decisions first, files
   in Create.
+- Anti-pattern: mixing write channels in Create. Author every file through one
+  channel -- the editor or the shell, not both. The two are backed by paths that
+  sync, and an editor write can fail to flush to the shell side that packaging zips
+  from, shipping a truncated file the editor's own re-read still shows as whole. If
+  you must mix, treat verify_package.py in Test as mandatory, not optional.
 - Anti-pattern: declaring done before the Test phase exits clean and the user has
-  signed off.
+  signed off. A green structure validator alone is false confidence: it cannot see
+  a truncated file or whether the agent will follow the workflow.
