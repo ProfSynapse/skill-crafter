@@ -4,7 +4,7 @@ A meta-skill for building and improving Claude Code skills the right way. It
 encodes a set of authoring best practices and demonstrates every one of them in
 its own structure, so it is also a worked example of a well-formed skill.
 
-Version 0.1.1.
+Version 0.1.2. Distributed as a Claude Code plugin; see [Install](#install).
 
 ## What it does
 - **Create** a new skill from a rough idea, through a gated PACT cycle
@@ -29,28 +29,57 @@ gated on user feedback, so the build stays steerable.
 8. Mandatory behavior lives in the numbered workflow, not a side section.
 9. Verify the packaged artifact, not just the source, and run it end to end.
 
-The canonical statement lives in [references/best-practices.md](references/best-practices.md).
+The canonical statement lives in
+[skills/skill-crafter/references/best-practices.md](skills/skill-crafter/references/best-practices.md).
 
 ## Structure
+This repo is a Claude Code plugin **and** its own single-plugin marketplace. The
+skill is a self-contained unit under `skills/skill-crafter/`; the `.claude-plugin/`
+manifests at the root make it installable.
 ```
-skill-crafter/
-├── SKILL.md          slim router
-├── protocols/        create-skill, improve-skill, modularize, validate
-├── references/       best-practices, progressive-disclosure, folder-taxonomy,
-│                     prompt-structure, validation-pattern
-├── agents/           skill-preparer, skill-architect, skill-creator,
-│                     skill-tester, skill-improver
-├── scripts/          scaffold.py, validate_skill.py, verify_package.py
-└── templates/        SKILL, agent, protocol, reference, script,
-                      self-refine, refinement-log
+skill-crafter/                     repo root = plugin root = marketplace root
+├── .claude-plugin/
+│   ├── plugin.json                plugin manifest (name, version, author)
+│   └── marketplace.json           marketplace index; pins the plugin to a release tag
+├── skills/
+│   └── skill-crafter/             the skill itself
+│       ├── SKILL.md               slim router
+│       ├── protocols/             create-skill, improve-skill, modularize, validate
+│       ├── references/            best-practices, progressive-disclosure, folder-taxonomy,
+│       │                          prompt-structure, validation-pattern
+│       ├── agents/                skill-preparer, skill-architect, skill-creator,
+│       │                          skill-tester, skill-improver
+│       ├── scripts/               scaffold.py, validate_skill.py, verify_package.py
+│       └── templates/             SKILL, agent, protocol, reference, script,
+│                                  self-refine, refinement-log
+└── README.md
+```
+
+## Install
+### As a plugin (recommended)
+```
+/plugin marketplace add ProfSynapse/skill-crafter
+/plugin install skill-crafter@skill-crafter
+```
+The marketplace manifest lives on `main`, but it pins the installed plugin to a
+**release tag** (`ref: v0.1.2`), so installs always come from a tagged release,
+not from whatever is on `main`. Updates ship when the release pointer is bumped;
+run `/plugin update` to pick them up.
+
+### Manual (no plugin system)
+Each release attaches a `.skill` archive. Unzip it so `skill-crafter/` lands in
+your skills location:
+```bash
+unzip skill-crafter-0.1.2.skill -d ~/.claude/skills/
 ```
 
 ## Usage
 Inside Claude Code, invoke the skill and describe what you want:
-- "Build a skill that ..." runs [protocols/create-skill.md](protocols/create-skill.md).
-- "Improve this skill: ..." runs [protocols/improve-skill.md](protocols/improve-skill.md).
+- "Build a skill that ..." runs [create-skill](skills/skill-crafter/protocols/create-skill.md).
+- "Improve this skill: ..." runs [improve-skill](skills/skill-crafter/protocols/improve-skill.md).
 
 ### Scripts (CLI)
+Run from inside the skill directory (`skills/skill-crafter/`):
 ```bash
 # Generate a new skill's structure from the templates
 python scripts/scaffold.py my-skill --description "Do X when Y." --path ../skills
@@ -66,18 +95,11 @@ router under the length threshold, confirms every local reference resolves, and
 flags truncated files and imperatives stranded outside the workflow.
 `verify_package.py` round-trips the shipped `.skill` against source hashes so a
 truncated member cannot pass silently. Per-skill domain checks are written by each
-skill; see [references/validation-pattern.md](references/validation-pattern.md).
-
-## Install
-Unpack the release artifact so the `skill-crafter/` directory sits in your skills
-location (for example `~/.claude/skills/skill-crafter/`):
-```bash
-unzip skill-crafter-0.1.1.skill -d ~/.claude/skills/
-```
-Then start a session and the skill is available.
+skill; see
+[validation-pattern.md](skills/skill-crafter/references/validation-pattern.md).
 
 ## Self-refinement
 skill-crafter is author-controlled and does not refine itself. The skills it
 produces are born self-refining: each ships a `self-refine` protocol and a
 `refinement-log`, so it improves from use. See
-[templates/self-refine.template.md](templates/self-refine.template.md).
+[self-refine.template.md](skills/skill-crafter/templates/self-refine.template.md).
