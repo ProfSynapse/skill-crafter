@@ -4,7 +4,7 @@ A meta-skill for building and improving Claude Code skills the right way. It
 encodes a set of authoring best practices and demonstrates every one of them in
 its own structure, so it is also a worked example of a well-formed skill.
 
-Version 0.1.2. Distributed as a Claude Code plugin; see [Install](#install).
+Version 0.1.3. Distributed as a Claude Code plugin; see [Install](#install).
 
 ## What it does
 - **Create** a new skill from a rough idea, through a gated PACT cycle
@@ -63,7 +63,7 @@ skill-crafter/                     repo root = plugin root
 /plugin install skill-crafter@synaptic-labs
 ```
 The marketplace index lives on `main` of the marketplace repo, but its entry pins
-this plugin to a **release tag** (`ref: v0.1.2`), so installs always come from a
+this plugin to a **release tag** (`ref: v0.1.3`), so installs always come from a
 tagged release, not from whatever is on `main`. Updates ship when the release
 pointer is bumped; run `/plugin update` to pick them up.
 
@@ -71,7 +71,7 @@ pointer is bumped; run `/plugin update` to pick them up.
 Each release attaches a `.skill` archive. Unzip it so `skill-crafter/` lands in
 your skills location:
 ```bash
-unzip skill-crafter-0.1.2.skill -d ~/.claude/skills/
+unzip skill-crafter-0.1.3.skill -d ~/.claude/skills/
 ```
 
 ## Usage

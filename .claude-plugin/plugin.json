@@ -1,7 +1,7 @@
 {
   "name": "skill-crafter",
   "displayName": "Skill Crafter",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Build, improve, modularize, and validate Claude Code skills the right way: slim-router, progressive-disclosure, PACT-driven, with packaging-integrity and workflow-placement checks.",
   "author": {
     "name": "Joseph Rosenbaum",
