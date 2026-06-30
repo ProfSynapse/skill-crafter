@@ -1,6 +1,6 @@
 {
-  "name": "skill-crafter",
-  "description": "Marketplace for skill-crafter, the meta-skill for building Claude Code skills.",
+  "name": "synaptic-labs",
+  "description": "Synaptic Labs plugins for Claude Code.",
   "owner": {
     "name": "Joseph Rosenbaum",
     "email": "connect2synapse@gmail.com"

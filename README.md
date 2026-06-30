@@ -59,7 +59,7 @@ skill-crafter/                     repo root = plugin root = marketplace root
 ### As a plugin (recommended)
 ```
 /plugin marketplace add ProfSynapse/skill-crafter
-/plugin install skill-crafter@skill-crafter
+/plugin install skill-crafter@synaptic-labs
 ```
 The marketplace manifest lives on `main`, but it pins the installed plugin to a
 **release tag** (`ref: v0.1.2`), so installs always come from a tagged release,
