@@ -5,7 +5,7 @@
   "description": "Build, improve, modularize, and validate Claude Code skills the right way: slim-router, progressive-disclosure, PACT-driven, with packaging-integrity and workflow-placement checks.",
   "author": {
     "name": "Joseph Rosenbaum",
-    "email": "connect2synapse@gmail.com"
+    "email": "profsynapse@synapticlabs.ai"
   },
   "homepage": "https://github.com/ProfSynapse/skill-crafter",
   "repository": "https://github.com/ProfSynapse/skill-crafter",

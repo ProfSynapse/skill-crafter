@@ -33,14 +33,15 @@ The canonical statement lives in
 [skills/skill-crafter/references/best-practices.md](skills/skill-crafter/references/best-practices.md).
 
 ## Structure
-This repo is a Claude Code plugin **and** its own single-plugin marketplace. The
-skill is a self-contained unit under `skills/skill-crafter/`; the `.claude-plugin/`
-manifests at the root make it installable.
+This repo is a Claude Code plugin. The skill is a self-contained unit under
+`skills/skill-crafter/`; the `.claude-plugin/plugin.json` manifest makes it
+installable. It is distributed through the **Synaptic Labs marketplace**
+([ProfSynapse/synaptic-labs-plugins](https://github.com/ProfSynapse/synaptic-labs-plugins)),
+which pins this plugin to a release tag.
 ```
-skill-crafter/                     repo root = plugin root = marketplace root
+skill-crafter/                     repo root = plugin root
 ├── .claude-plugin/
-│   ├── plugin.json                plugin manifest (name, version, author)
-│   └── marketplace.json           marketplace index; pins the plugin to a release tag
+│   └── plugin.json                plugin manifest (name, version, author)
 ├── skills/
 │   └── skill-crafter/             the skill itself
 │       ├── SKILL.md               slim router
@@ -58,13 +59,13 @@ skill-crafter/                     repo root = plugin root = marketplace root
 ## Install
 ### As a plugin (recommended)
 ```
-/plugin marketplace add ProfSynapse/skill-crafter
+/plugin marketplace add ProfSynapse/synaptic-labs-plugins
 /plugin install skill-crafter@synaptic-labs
 ```
-The marketplace manifest lives on `main`, but it pins the installed plugin to a
-**release tag** (`ref: v0.1.2`), so installs always come from a tagged release,
-not from whatever is on `main`. Updates ship when the release pointer is bumped;
-run `/plugin update` to pick them up.
+The marketplace index lives on `main` of the marketplace repo, but its entry pins
+this plugin to a **release tag** (`ref: v0.1.2`), so installs always come from a
+tagged release, not from whatever is on `main`. Updates ship when the release
+pointer is bumped; run `/plugin update` to pick them up.
 
 ### Manual (no plugin system)
 Each release attaches a `.skill` archive. Unzip it so `skill-crafter/` lands in
