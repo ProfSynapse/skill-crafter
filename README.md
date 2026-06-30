@@ -4,7 +4,7 @@ A meta-skill for building and improving Claude Code skills the right way. It
 encodes a set of authoring best practices and demonstrates every one of them in
 its own structure, so it is also a worked example of a well-formed skill.
 
-Version 0.1.3. Distributed as a Claude Code plugin; see [Install](#install).
+Version 0.1.4. Distributed as a Claude Code **and** Codex plugin; see [Install](#install).
 
 ## What it does
 - **Create** a new skill from a rough idea, through a gated PACT cycle
@@ -33,15 +33,18 @@ The canonical statement lives in
 [skills/skill-crafter/references/best-practices.md](skills/skill-crafter/references/best-practices.md).
 
 ## Structure
-This repo is a Claude Code plugin. The skill is a self-contained unit under
-`skills/skill-crafter/`; the `.claude-plugin/plugin.json` manifest makes it
-installable. It is distributed through the **Synaptic Labs marketplace**
+This repo is a plugin for both Claude Code and Codex. The skill is a self-contained
+unit under `skills/skill-crafter/`; the two manifests make it installable in each
+ecosystem (both point at the same `skills/` directory). It is distributed through
+the **Synaptic Labs marketplace**
 ([ProfSynapse/synaptic-labs-plugins](https://github.com/ProfSynapse/synaptic-labs-plugins)),
 which pins this plugin to a release tag.
 ```
 skill-crafter/                     repo root = plugin root
 ├── .claude-plugin/
-│   └── plugin.json                plugin manifest (name, version, author)
+│   └── plugin.json                Claude Code plugin manifest
+├── .codex-plugin/
+│   └── plugin.json                Codex plugin manifest (skills -> ./skills/)
 ├── skills/
 │   └── skill-crafter/             the skill itself
 │       ├── SKILL.md               slim router
@@ -58,14 +61,20 @@ skill-crafter/                     repo root = plugin root
 
 ## Install
 ### As a plugin (recommended)
+**Claude Code:**
 ```
 /plugin marketplace add ProfSynapse/synaptic-labs-plugins
 /plugin install skill-crafter@synaptic-labs
 ```
+**Codex:**
+```
+codex plugin marketplace add ProfSynapse/synaptic-labs-plugins
+# then open /plugins in a session to install + enable
+```
 The marketplace index lives on `main` of the marketplace repo, but its entry pins
-this plugin to a **release tag** (`ref: v0.1.3`), so installs always come from a
-tagged release, not from whatever is on `main`. Updates ship when the release
-pointer is bumped; run `/plugin update` to pick them up.
+this plugin to a **release tag** (`ref: v0.1.4`), so installs always come from a
+tagged release, not from whatever is on `main`. Update with `/plugin update`
+(Claude) or `codex plugin marketplace upgrade` (Codex).
 
 ### Manual (no plugin system)
 Each release attaches a `.skill` archive. Unzip it so `skill-crafter/` lands in

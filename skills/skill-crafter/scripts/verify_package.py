@@ -22,7 +22,7 @@ a defect is found, 2 on usage error.
 
 Usage:
   python verify_package.py --source PATH_TO_SKILL_DIR --package dist/my-skill.skill
-  python verify_package.py --source . --package dist/skill-crafter-0.1.3.skill \
+  python verify_package.py --source . --package dist/skill-crafter-0.1.4.skill \
       --ignore dist,.git,__pycache__
 """
 from __future__ import annotations

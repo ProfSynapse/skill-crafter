@@ -1,0 +1,14 @@
+{
+  "name": "skill-crafter",
+  "version": "0.1.4",
+  "description": "Build, improve, modularize, and validate skills the right way: slim-router, progressive-disclosure, PACT-driven, with packaging-integrity and workflow-placement checks.",
+  "author": {
+    "name": "Joseph Rosenbaum",
+    "email": "profsynapse@synapticlabs.ai"
+  },
+  "homepage": "https://github.com/ProfSynapse/skill-crafter",
+  "repository": "https://github.com/ProfSynapse/skill-crafter",
+  "license": "MIT",
+  "keywords": ["skill", "meta-skill", "authoring", "validation", "pact", "progressive-disclosure"],
+  "skills": "./skills/"
+}
