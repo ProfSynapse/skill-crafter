@@ -4,7 +4,7 @@ A meta-skill for building and improving Claude Code skills the right way. It
 encodes a set of authoring best practices and demonstrates every one of them in
 its own structure, so it is also a worked example of a well-formed skill.
 
-Version 0.1.4. Distributed as a Claude Code **and** Codex plugin; see [Install](#install).
+Version 0.2.0. Distributed as a Claude Code **and** Codex plugin; see [Install](#install).
 
 ## What it does
 - **Align** on a written spec the user approves before anything is researched,
@@ -83,7 +83,7 @@ codex plugin marketplace add ProfSynapse/synaptic-labs-plugins
 # then open /plugins in a session to install + enable
 ```
 The marketplace index lives on `main` of the marketplace repo, but its entry pins
-this plugin to a **release tag** (`ref: v0.1.4`), so installs always come from a
+this plugin to a **release tag** (`ref: v0.2.0`), so installs always come from a
 tagged release, not from whatever is on `main`. Update with `/plugin update`
 (Claude) or `codex plugin marketplace upgrade` (Codex).
 
@@ -91,7 +91,7 @@ tagged release, not from whatever is on `main`. Update with `/plugin update`
 Each release attaches a `.skill` archive. Unzip it so `skill-crafter/` lands in
 your skills location:
 ```bash
-unzip skill-crafter-0.1.3.skill -d ~/.claude/skills/
+unzip skill-crafter-0.2.0.skill -d ~/.claude/skills/
 ```
 
 ## Usage
