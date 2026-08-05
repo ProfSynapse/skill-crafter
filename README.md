@@ -7,14 +7,20 @@ its own structure, so it is also a worked example of a well-formed skill.
 Version 0.1.4. Distributed as a Claude Code **and** Codex plugin; see [Install](#install).
 
 ## What it does
-- **Create** a new skill from a rough idea, through a gated PACT cycle
+- **Align** on a written spec the user approves before anything is researched,
+  scaffolded, or written.
+- **Create** a new skill from that spec, through a gated PACT cycle
   (Prepare, Architect, Create, Test).
-- **Improve** an existing skill: interview the user, assess it against the
+- **Improve** an existing skill: align on the problem, assess it against the
   practices, apply the smallest fixes, and re-test.
 - **Validate** any skill against the universal structural rules with one CLI.
+- **Package** the result into a verified `.skill` artifact, as a mandatory
+  terminal phase rather than an afterthought.
 
 You reason through the work; the scripts verify what is checkable. Every phase is
-gated on user feedback, so the build stays steerable.
+gated on user feedback, so the build stays steerable. Every protocol names the
+protocol that follows it, and the chain ends at packaging, so a job cannot
+quietly stop at "validated".
 
 ## The practices it encodes
 1. SKILL.md is a slim router; detail lives in folders and loads on demand.
@@ -28,6 +34,9 @@ gated on user feedback, so the build stays steerable.
 7. Created skills are self-refining.
 8. Mandatory behavior lives in the numbered workflow, not a side section.
 9. Verify the packaged artifact, not just the source, and run it end to end.
+10. Alignment is a phase with an artifact and a hard gate, not a few questions.
+11. Chain the protocols; a workflow ends where a file stops pointing.
+12. Packaging is the deliverable, not a formality.
 
 The canonical statement lives in
 [skills/skill-crafter/references/best-practices.md](skills/skill-crafter/references/best-practices.md).
@@ -48,14 +57,16 @@ skill-crafter/                     repo root = plugin root
 ├── skills/
 │   └── skill-crafter/             the skill itself
 │       ├── SKILL.md               slim router
-│       ├── protocols/             create-skill, improve-skill, modularize, validate
+│       ├── protocols/             align, create-skill, improve-skill, modularize,
+│       │                          validate, package
 │       ├── references/            best-practices, progressive-disclosure, folder-taxonomy,
 │       │                          prompt-structure, validation-pattern
 │       ├── agents/                skill-preparer, skill-architect, skill-creator,
 │       │                          skill-tester, skill-improver
-│       ├── scripts/               scaffold.py, validate_skill.py, verify_package.py
-│       └── templates/             SKILL, agent, protocol, reference, script,
-│                                  self-refine, refinement-log
+│       ├── scripts/               scaffold.py, validate_skill.py, package_skill.py,
+│       │                          verify_package.py
+│       └── templates/             skill-spec, SKILL, agent, protocol, reference,
+│                                  script, self-refine, refinement-log
 └── README.md
 ```
 
@@ -88,6 +99,12 @@ Inside Claude Code, invoke the skill and describe what you want:
 - "Build a skill that ..." runs [create-skill](skills/skill-crafter/protocols/create-skill.md).
 - "Improve this skill: ..." runs [improve-skill](skills/skill-crafter/protocols/improve-skill.md).
 
+Either way the first phase is [align](skills/skill-crafter/protocols/align.md):
+you will be interviewed until a `skill-spec.md` has no unresolved fields, and
+nothing else gets written until you approve it. The last phase is
+[package](skills/skill-crafter/protocols/package.md), which produces and verifies
+the `.skill` artifact and reports its path.
+
 ### Scripts (CLI)
 Run from inside the skill directory (`skills/skill-crafter/`):
 ```bash
@@ -97,15 +114,22 @@ python scripts/scaffold.py my-skill --description "Do X when Y." --path ../skill
 # Validate any skill directory against the universal rules
 python scripts/validate_skill.py path/to/skill
 
-# Verify a packaged artifact against its source (run after packaging)
+# Build the distributable artifact
+python scripts/package_skill.py path/to/skill --out dist --version 0.2.0
+
+# Verify that artifact against its source (run after packaging)
 python scripts/verify_package.py --source path/to/skill --package dist/skill.skill
 ```
 `validate_skill.py` checks frontmatter (kebab-case name, description), keeps the
 router under the length threshold, confirms every local reference resolves, and
-flags truncated files and imperatives stranded outside the workflow.
-`verify_package.py` round-trips the shipped `.skill` against source hashes so a
-truncated member cannot pass silently. Per-skill domain checks are written by each
-skill; see
+flags truncated files, imperatives stranded outside the workflow, and protocols
+that dead-end without a `## Next` section. On a clean run it prints the packaging
+command, because a green validator is the point where a job most often gets
+mistaken for finished. `package_skill.py` builds the archive with the same ignore
+rules the verifier uses, so an ad-hoc `zip` cannot sweep in `.git` or a stale
+artifact. `verify_package.py` round-trips the shipped `.skill` against source
+hashes so a truncated member cannot pass silently. Per-skill domain checks are
+written by each skill; see
 [validation-pattern.md](skills/skill-crafter/references/validation-pattern.md).
 
 ## Self-refinement

@@ -17,6 +17,8 @@ feedback, and record the change.
 4. Apply it to the right file: router, reference, protocol, script, or agent.
 5. Append an entry to `../refinement-log.md`: date, observation, change, files.
 6. Re-run this skill's validation so the change does not regress it.
+7. Repackage if this skill ships as an artifact; a refinement left unpackaged is
+   a refinement the user never receives.
 
 ## Guidelines
 - Pattern: one evidence-backed fix per session beats a speculative rewrite. The
@@ -26,3 +28,7 @@ feedback, and record the change.
 - Anti-pattern: refining in the abstract. If nothing went wrong and the user has
   no feedback, log "no change" and stop.
 - Anti-pattern: growing the router during refinement. New detail goes in a folder.
+
+## Next
+This is the terminal protocol for a session. Report the change and the log entry
+to the user.

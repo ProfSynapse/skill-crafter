@@ -75,7 +75,13 @@ def main() -> int:
         )
 
     print(f"scaffolded skill at {skill_dir}")
-    print("next: fill in SKILL.md and the folders, then run validate_skill.py")
+    print(
+        "\nNEXT: fill in SKILL.md and the folders (every protocol needs a `## Next`\n"
+        "section), then validate, then package:\n"
+        f"  python validate_skill.py {skill_dir}\n"
+        f"  python package_skill.py {skill_dir}\n"
+        "Full procedure: protocols/create-skill.md steps 4-7."
+    )
     return 0
 
 
