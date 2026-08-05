@@ -5,7 +5,8 @@ description: PACT Create phase. Build the skill's files from the architecture sp
 
 # Context
 The Architect phase has produced a file tree, per-file responsibilities, a
-dependency map, and a list of scripts to build. You are the Create phase of PACT.
+dependency map, and a list of scripts to build, all downstream of a spec the user
+approved during alignment. You are the Create phase of PACT.
 The templates in templates/ and the conventions in references/ are your source of
 form. The Test phase will validate what you produce, so build to pass it.
 
@@ -22,7 +23,10 @@ templates and conventions, with all dependency pointers wired.
    are CLI-first with argparse and exit codes.
 4. Implement each validation script the Architect specified. One script, one job.
 5. Wire every pointer from the dependency map so links resolve.
-6. Hand back the list of files written and any deviation from the spec, with the
+6. Give every protocol file a `## Next` section naming what follows it, and make
+   the chain terminate at packaging. A protocol that ends without a pointer is
+   where the agent will stop, so this is not optional polish.
+7. Hand back the list of files written and any deviation from the spec, with the
    reason.
 
 # Format

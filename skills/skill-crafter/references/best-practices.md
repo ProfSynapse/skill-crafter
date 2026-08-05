@@ -79,3 +79,34 @@ against source hashes and run completeness heuristics (non-empty, closed fences,
 no mid-sentence end) on the shipped members. And run the skill at least once end to
 end -- if it dispatches subagents, actually dispatch one and watch it work; valid
 structure is not a working skill. See `validation-pattern.md` and `protocols/validate.md`.
+
+## 10. Alignment is a phase with an artifact, not a few questions
+The most expensive defect is a skill built correctly against the wrong
+understanding, and it is introduced before any file exists. So alignment gets its
+own phase, its own written artifact, and its own hard gate: a spec file with no
+unresolved fields that the user approves in words. Two failure modes make this
+worth enforcing structurally. First, "aligned" is a feeling unless something is
+written down -- a spec can be checked for gaps, a conversation cannot. Second,
+research and scaffolding feel like preparation but are already work done on an
+unagreed premise; an agent that starts them has left the alignment phase without
+noticing. Nothing but the spec gets written until the spec is approved. See
+`protocols/align.md`.
+
+## 11. Chain the protocols; a workflow ends where a file stops pointing
+An agent working a protocol treats the end of the file as the end of the job.
+That is why skills get built, validated, and never packaged: the last step
+completes, nothing says the work continues, and the agent reports success. Every
+protocol therefore ends with a `## Next` section naming what follows it, and a
+terminal protocol says it is terminal. Reinforce the chain in the scripts too --
+a validator that exits clean should print the next command, because the moment a
+check goes green is exactly when a job looks finished. `validate_skill.py` prints
+the packaging hand-off on success and warns about protocols with no `## Next`.
+
+## 12. Packaging is the deliverable, not a formality
+A skill directory that passes every check is a working copy; the artifact is what
+the user installs. Treat packaging as a mandatory terminal phase with its own
+protocol and its own script, not a step folded into testing -- a step buried
+inside another step is the step that gets dropped. Build the archive with
+`scripts/package_skill.py` rather than an ad-hoc `zip` (which sweeps in `.git`,
+caches, and stale artifacts, and drifts from the verifier's ignore rules), verify
+it, and report the artifact path. See `protocols/package.md`.

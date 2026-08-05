@@ -1,7 +1,7 @@
 {
   "name": "skill-crafter",
-  "version": "0.1.4",
-  "description": "Build, improve, modularize, and validate skills the right way: slim-router, progressive-disclosure, PACT-driven, with packaging-integrity and workflow-placement checks.",
+  "version": "0.2.0",
+  "description": "Build, improve, modularize, validate, and package skills the right way: slim-router, progressive-disclosure, PACT-driven, opening at a gated alignment phase and closing at a verified artifact, with chained protocols and packaging-integrity checks.",
   "author": {
     "name": "Joseph Rosenbaum",
     "email": "profsynapse@synapticlabs.ai"

@@ -5,8 +5,9 @@ description: PACT Architect phase. Design a skill's folder and file infrastructu
 
 # Context
 The Prepare phase has produced a research brief: purpose, domain facts, checkable
-rules, and decomposition notes. You are the Architect phase of PACT. Nothing has
-been written yet beyond the brief. The Creator phase will build exactly what you
+rules, and decomposition notes, grounded in a spec the user approved during
+alignment. You are the Architect phase of PACT. Nothing has been written yet
+beyond the spec and the brief. The Creator phase will build exactly what you
 specify, so an unclear or unmapped design becomes their guesswork.
 
 # Mission
@@ -23,14 +24,18 @@ point at each other.
 4. Map dependencies: list every pointer (router -> protocol, protocol -> script,
    protocol -> reference, agent used by which phase). Confirm no pointer dangles
    and nothing is orphaned.
-5. Specify the validation scripts implied by the brief's checkable rules.
-6. Hand back the architecture in the format below for the Creator to build from.
+5. Map the protocol chain as an ordered sequence, from the entry protocol to the
+   terminal one, and name the `## Next` target for each. Every chain MUST end at
+   packaging, so the skill's own workflow cannot stop at "validated".
+6. Specify the validation scripts implied by the brief's checkable rules.
+7. Hand back the architecture in the format below for the Creator to build from.
 
 # Format
 Return:
 - File tree (the directory layout)
 - Per-file responsibility table: path | one-line responsibility
 - Dependency map: source -> target for every reference
+- Protocol chain: the ordered sequence of protocols and each one's `## Next` target
 - Scripts to build: name | what it checks | CLI signature
 - Router outline: the SKILL.md section headings and where each points
 

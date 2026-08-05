@@ -17,10 +17,18 @@ Checks, in order:
      imperative keywords (MUST/ALWAYS/NEVER/REQUIRED) should appear inside the
      numbered workflow, not only in side sections an agent reads top-to-bottom
      never reaches. A keyword present only outside the steps is flagged. WARN.
+  7. Protocol chaining: every protocols/*.md ends with a `## Next` section naming
+     what to do when it finishes. A protocol that dead-ends is where a workflow
+     silently stops -- the agent completes the steps and has nothing telling it
+     the job continues. WARN.
 
-Checks 1-5 are hard errors; check 6 is a heuristic warning. These are the
+Checks 1-5 are hard errors; checks 6-7 are heuristic warnings. These are the
 universal checks. Domain-specific checks belong in the skill's own scripts/ (see
 references/validation-pattern.md). Stdlib only.
+
+On success this prints the packaging command, because a validated skill is not a
+delivered skill: the checks above read the source tree, and the user installs an
+artifact. See protocols/package.md.
 
 Exit 0 when valid, 1 when an error is found, 2 on usage error. Warnings do not
 fail the run.
@@ -28,6 +36,7 @@ fail the run.
 Usage:
   python validate_skill.py PATH_TO_SKILL_DIR
   python validate_skill.py . --max-lines 150 --max-words 1500 --max-description 1024
+  python validate_skill.py . --quiet-next   # suppress the packaging hand-off
 """
 from __future__ import annotations
 
@@ -43,6 +52,7 @@ KNOWN_FOLDERS = {"agents", "scripts", "templates", "references", "protocols"}
 IMPERATIVE = re.compile(r"\b(MUST|ALWAYS|NEVER|REQUIRED)\b")
 NUMBERED = re.compile(r"^\s*\d+\.\s")
 WORKFLOW_HEADING = re.compile(r"^#+\s.*\b(workflow|steps|instructions)\b", re.IGNORECASE)
+NEXT_HEADING = re.compile(r"^#+\s*next\b", re.IGNORECASE)
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -135,11 +145,19 @@ def check_workflow_placement(rel: str, text: str) -> list[str]:
     the workflow, at the point of decision.
     """
     in_workflow_section = False
+    workflow_depth = 0
     keyword: str | None = None
     in_steps = False
     for ln in text.splitlines():
         if ln.startswith("#"):
-            in_workflow_section = bool(WORKFLOW_HEADING.match(ln))
+            depth = len(ln) - len(ln.lstrip("#"))
+            if WORKFLOW_HEADING.match(ln):
+                in_workflow_section, workflow_depth = True, depth
+            elif in_workflow_section and depth <= workflow_depth:
+                # Only a sibling or shallower heading closes the workflow. A
+                # deeper one (`### 1. Align` under `## Steps`) is a step itself,
+                # and treating it as an exit would strand its imperatives.
+                in_workflow_section = False
         numbered = bool(NUMBERED.match(ln))
         m = IMPERATIVE.search(ln)
         if m:
@@ -152,6 +170,22 @@ def check_workflow_placement(rel: str, text: str) -> list[str]:
             f"workflow/steps -- mandatory behavior may sit where the agent won't read it"
         ]
     return []
+
+
+def check_chaining(rel: str, text: str) -> list[str]:
+    """Flag a protocol that does not say what comes after it.
+
+    A protocol is one link in a workflow. When the last thing an agent reads is
+    the final step, finishing the file reads as finishing the job -- which is how
+    a skill gets built and validated but never packaged. A `## Next` section
+    keeps the chain explicit. Terminal protocols satisfy this by saying so.
+    """
+    if any(NEXT_HEADING.match(ln) for ln in text.splitlines()):
+        return []
+    return [
+        f"{rel}: no `## Next` section -- this protocol dead-ends, so an agent "
+        f"that finishes it has nothing telling it the workflow continues"
+    ]
 
 
 def validate(skill_dir: Path, args) -> tuple[list[str], list[str]]:
@@ -203,6 +237,8 @@ def validate(skill_dir: Path, args) -> tuple[list[str], list[str]]:
         # executes top-to-bottom: the router and the prompt/protocol files.
         if rel.name == "SKILL.md" or rel.parts[0] in ("agents", "protocols"):
             warnings.extend(check_workflow_placement(str(rel), text))
+        if rel.parts[0] == "protocols" and rel.suffix == ".md":
+            warnings.extend(check_chaining(str(rel), text))
 
     for child in skill_dir.iterdir():
         if child.is_dir() and child.name not in KNOWN_FOLDERS and not child.name.startswith("."):
@@ -219,6 +255,11 @@ def main() -> int:
     parser.add_argument("--max-lines", type=int, default=150)
     parser.add_argument("--max-words", type=int, default=1500)
     parser.add_argument("--max-description", type=int, default=1024)
+    parser.add_argument(
+        "--quiet-next",
+        action="store_true",
+        help="suppress the packaging hand-off printed on success",
+    )
     args = parser.parse_args()
 
     skill_dir = Path(args.skill_dir)
@@ -235,7 +276,18 @@ def main() -> int:
     if errors:
         print(f"\nINVALID: {len(errors)} error(s), {len(warnings)} warning(s)")
         return 1
+
     print(f"\nVALID: 0 errors, {len(warnings)} warning(s)")
+    if not args.quiet_next:
+        here = Path(__file__).resolve().parent
+        print(
+            "\nNEXT: valid is not delivered. These checks read the source tree;\n"
+            "the user installs an artifact. Package and verify it now:\n"
+            f"  python {here / 'package_skill.py'} {skill_dir}\n"
+            f"  python {here / 'verify_package.py'} --source {skill_dir} "
+            f"--package dist/<name>.skill\n"
+            "Full procedure: protocols/package.md"
+        )
     return 0
 
 

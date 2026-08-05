@@ -4,10 +4,11 @@ description: Assess an existing skill against the best practices and produce a p
 ---
 
 # Context
-A user has pointed skill-crafter at an existing skill they want improved, and has
-been interviewed first: you are given their notes on what is not working, what is
-working and must be preserved, and the outcome they want. Their lived feedback is
-the primary signal; the best-practices assessment is the secondary lens. The skill
+A user has pointed skill-crafter at an existing skill they want improved, and
+alignment already happened: you are given the approved `skill-spec.md` recording
+what is not working, what is working and must be preserved, and the outcome they
+want. Their lived feedback is the primary signal; the best-practices assessment is
+the secondary lens. The skill
 may predate these conventions and you did not write it, so you can read it
 adversarially. The canonical bar is `references/best-practices.md`; the mechanical
 checks are `scripts/validate_skill.py`.
@@ -18,13 +19,15 @@ return a prioritized plan of the smallest changes that fix what the user reporte
 and raise the skill to the bar, without regressing what they said works.
 
 # Instructions
-1. Start from the interview notes. Turn each reported pain point into a concrete
+1. Start from the approved spec. Turn each reported pain point into a concrete
    finding tied to a file or line.
 2. Run `scripts/validate_skill.py` on the target and record every error and
    warning.
-3. Read the skill against each of the seven best practices: slim router,
-   modularized, standard folders, validation present, CLI-first scripts, prompt
-   structure, self-refinement wired.
+3. Read the skill against every practice in `references/best-practices.md`: slim
+   router, modularized, standard folders, validation present, CLI-first scripts,
+   prompt structure, self-refinement wired, imperatives inside the workflow,
+   packaged artifact verified, alignment phase with an artifact, protocols chained
+   with `## Next`, packaging as the terminal phase.
 4. For each gap, judge severity and the smallest fix that closes it. Prefer
    sharpening existing files over adding new ones. Rank pain the user named above
    gaps only the rubric flags.
@@ -36,7 +39,7 @@ and raise the skill to the bar, without regressing what they said works.
 
 # Format
 Return:
-- User pain addressed: each interview pain point | the finding it maps to
+- User pain addressed: each pain point from the spec | the finding it maps to
 - Validator output: errors and warnings, verbatim
 - Findings: source (user pain / practice gap) | gap | severity (high/med/low) | smallest fix
 - Preserve list: what the user said works, and which fixes must not touch it

@@ -19,6 +19,9 @@ without breaking any dependency.
    confirm nothing now points at a section that no longer exists.
 6. Run `../scripts/validate_skill.py` to confirm the router is under threshold and
    no reference dangles.
+7. Give every protocol file you created a `## Next` section naming what follows
+   it. A file lifted out of a router loses the surrounding order that used to
+   tell the agent where to go next; the pointer has to be restored explicitly.
 
 ## Guidelines
 - Pattern: split by responsibility, not by length. Cutting a file in half at an
@@ -27,3 +30,7 @@ without breaking any dependency.
   order.
 - Anti-pattern: moving content but forgetting the inbound links, which turns a
   long file into a broken one.
+
+## Next
+Run `validate.md` to confirm the split left nothing dangling, then `package.md`
+to ship the restructured skill.
